@@ -28,7 +28,6 @@ setwd('/home/larry/Github-Public/538-NFL-Predictions-2017/raw-data/oddsshark-lin
 acc <- data.frame()
 for (f in list.files()) {
   print(sprintf("Processing file: %s", f))
-  f <- list.files()[1]
   x <- readLines(f)
   x <- x[which(grepl(pattern = 'short_date', x))]  # This value changed from 24 to 14 on 9/26/2017
   
@@ -55,5 +54,9 @@ for (f in list.files()) {
   colnames(df) <- str_to_title(colnames(df))
   acc <- rbind(acc, df)
 }
+
+# Add the week
+acc$Week <- floor(interval(ymd('2017-09-07'), acc$Date.game) / dweeks(1)) + 1
+acc <- acc[ , c(ncol(acc), 1:(ncol(acc) - 1))]
 
 write.csv(acc, file = "../../parsed-data/oddsshark-nfl-lines.csv", row.names = F)
