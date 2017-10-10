@@ -4,7 +4,7 @@ library(XML)
 
 # All of the 538 NFL results are included on a single page, so you only need to read in a single file
 setwd('/home/larry/Github-Public/538-NFL-Predictions-2017/raw-data/538-game-predictions/')
-x <- readHTMLTable('2017-10-03-2253-538-nfl-game-predictions.html')
+x <- readHTMLTable('2017-10-09-1719-538-nfl-game-predictions.html.gz')
 names(x) <- sprintf("Week %d Results", length(x):1)
 filenames <- str_c(str_replace_all(names(x), " ", "-"), ".csv")
 
@@ -28,17 +28,16 @@ for (i in 1:length(x)) {
 setwd('/home/larry/Github-Public/538-NFL-Predictions-2017/raw-data/my-predictions/')
 files <- rev(list.files())
 for (i in 1:length(files)) {
+  print(files[i])
   week <- read.csv(files[i], header = TRUE)
-  print(week)
   x[[i]]$My.Team <- week$Team
   x[[i]]$My.Forecast <- week$Forecast
 }
 
 # Accumlate the weekly results into a single data.frame
-x <- rev(x)
 acc <- data.frame()
 for (i in 1:length(x)) acc <- rbind(acc, x[[i]])
-acc$Week <- unlist(mapply(function(m, n) rep(m, each = n), 1:4, sapply(x, nrow)))
+acc$Week <- unlist(mapply(function(m, n) rep(m, each = n), length(x):1, sapply(x, nrow)))
 acc <- acc[ , c(ncol(acc), 1:(ncol(acc) - 1))]
 
 # Additional columns... 
@@ -48,5 +47,6 @@ acc$Correct.Me <- acc$Winner == acc$My.Team
 acc$Agree <- acc$P.Team == acc$My.Team
 if (any(acc$Score.V == acc$Score.H)) warning(sprintf("Tie game", i))
 
+head(acc, 16)
 setwd('/home/larry/Github-Public/538-NFL-Predictions-2017/parsed-data/')
 write.csv(acc, file = "538-NFL-predictions.csv", row.names = F)
