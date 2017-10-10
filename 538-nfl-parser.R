@@ -4,7 +4,7 @@ library(XML)
 
 # All of the 538 NFL results are included on a single page, so you only need to read in a single file
 setwd('/home/larry/Github-Public/538-NFL-Predictions-2017/raw-data/538-game-predictions/')
-x <- readHTMLTable('2017-10-09-1719-538-nfl-game-predictions.html.gz')
+x <- readHTMLTable('2017-10-09-2313-538-nfl-game-predictions.html.gz')
 names(x) <- sprintf("Week %d Results", length(x):1)
 filenames <- str_c(str_replace_all(names(x), " ", "-"), ".csv")
 
