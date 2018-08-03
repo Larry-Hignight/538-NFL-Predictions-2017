@@ -42,7 +42,7 @@ head(lines)
 
 lines <- lines[ , c('Week', 'Date.game', 'Team', 'Bovada.lv', 'Caesars', 'Westgate', 'Station', 'Best')]
 lines <- merge(x = lines, y = preds, by = c('Week', 'Team'))
-lines$EV <- mapply(calc_ev, lines$P, lines$Best)
+lines$EV <- mapply(calc_ev, lines$P, lines$Bovada.lv)
 head(lines)
 
 
@@ -91,8 +91,8 @@ calc_bets <- function(bets, betting_amount) {
 ## ---------------
 
 start_amount <- 200
-num_games <- 14
-num_sims <- 30
+num_games <- 10
+num_sims <- 40
 max_bet <- 200
 bets <- lapply(1:num_sims, function(n) select_by_ev_cutoff(ev.cutoff = 3, start = start_amount, randomized = TRUE)[1:num_games, ])
 
@@ -120,10 +120,21 @@ for (i in 1:length(bets)) {
 }
 
 
-
 for (i in 1:length(results)) {
   print(names(results)[i])
   x <- results[[i]]
   print(summary(sapply(x, function(xx) xx$end[nrow(xx)])))
 }
+
+
+x <- results$kelly_1
+len <- nrow(x[[1]])
+plot(rep(start_amount, len), type = 'l', ylim = c(0, max(sapply(x, function(xx) max(xx$end)))), lwd = 2,
+     main = 'Kelly 1x Results', xlab = 'Bet #', ylab = '$')
+for (xx in x) {
+  points(jitter(1:len), jitter(xx$end), pch = 19, cex = .4, col = 'blue')
+  idx <- which(xx$end > 500)[1]
+  # points(idx, xx$end[idx], pch = 'X', col = 'red')
+}
+abline(h = c(182, 442, 896), col = 'red', lwd = 2)
 
